@@ -1,0 +1,39 @@
+h1{
+    text-align: center;
+}
+form {
+    display: flex;
+    flex-wrap: wrap;
+    align-items: center;
+    justify-content: center;
+    max-width: 800px;
+    margin: auto;
+    border: 1px solid black;
+}
+.formele {
+    width: 48%; 
+    margin-bottom: 15px;
+}
+label {
+    display: block;
+    margin-bottom: 5px;
+}
+input, textarea {
+    width: 90%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 5px;
+    font-size: 16px;
+}
+.error-message {
+    color: red;
+    font-size: 14px;
+}
+.error {
+    border-color: red;
+}
+@media (max-width: 600px) {
+    .formele {
+        width: 100%;
+    }
+}

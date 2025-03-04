@@ -1,0 +1,95 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="styles.css">
+    <title>Form Validation</title>
+</head>
+<body>
+    <h1>Validating Form Details</h1>
+    <form id="bookForm" onsubmit="return validateForm()" novalidate>
+        <div class="formele">
+            <label for="BookName">Book Name</label>
+            <input type="text" name="BookName" id="BookName" minlength="5">
+            <small class="error-message"></small>
+        </div>
+        <div class="formele">
+            <label for="Author">Author</label>
+            <input type="text" name="Author" id="Author" minlength="5">
+            <small class="error-message"></small>
+        </div>
+        <div class="formele">
+            <label for="AuthorEmail">Author Email</label>
+            <input type="email" name="AuthorEmail" id="AuthorEmail">
+            <small class="error-message"></small>
+        </div>
+        <div class="formele">
+            <label for="Publisher">Publisher</label>
+            <input type="text" name="Publisher" id="Publisher" minlength="5">
+            <small class="error-message"></small>
+        </div>
+        <div class="formele">
+            <label for="Description">Description</label>
+            <textarea name="Description" id="Description" minlength="20"></textarea>
+            <small class="error-message"></small>
+        </div>
+        <div class="formele">
+            <label for="Price">Price</label>
+            <input type="number" name="Price" id="Price">
+            <small class="error-message"></small>
+        </div>
+        <input type="submit" value="Submit">
+    </form>
+    <script>
+        function validateForm() {
+            let isValid = true;
+            let nameRegex = /^[A-Za-z\s]+$/;
+            let emailRegex = /^[a-zA-Z0-9._%+-]+@[a-zA-Z]+\.[a-zA-Z]{2,}$/;
+    
+            let fields = [
+                { id: "BookName", minLength: 5,message: "Book Name must be at least 5 characters and should contain only letters" },
+                { id: "Author", minLength: 5, pattern: nameRegex, message: "Author Name must be at least 5 characters and should contain only letters" },
+                { id: "AuthorEmail", type: "email", pattern: emailRegex, message: "Enter a valid email" },
+                { id: "Publisher", minLength: 5, pattern: nameRegex, message: "Publisher Name must be at least 5 characters" },
+                { id: "Description", minLength: 20, message: "Description must be at least 20 characters" },
+                { id: "Price", type: "number", message: "Enter a valid price" }
+            ];
+    
+            fields.forEach(field => {
+                let input = document.getElementById(field.id);
+                let errorMessage = input.nextElementSibling;
+                if (input.value.trim().length < (field.minLength || 1)) {
+                    errorMessage.textContent = field.message;
+                    input.classList.add("error");
+                    isValid = false;
+                } 
+                else if (field.pattern && !field.pattern.test(input.value.trim())) {
+                    errorMessage.textContent = field.message;
+                    input.classList.add("error");
+                    isValid = false;
+                }
+                else if (field.type === "email" && !emailRegex.test(input.value)) {
+                    errorMessage.textContent = field.message;
+                    input.classList.add("error");
+                    isValid = false;
+                }
+                else if (field.type === "number" && (input.value.trim() === "" || isNaN(input.value) || input.value<0)) {
+                    errorMessage.textContent = field.message;
+                    input.classList.add("error");
+                    isValid = false;
+                } 
+                else {
+                    errorMessage.textContent = "";
+                    input.classList.remove("error");
+                }
+            });
+    
+            if (isValid) {
+                alert("Form submitted successfully");
+            }
+            return isValid;
+        }
+    </script>    
+</body>
+</html>
