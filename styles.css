@@ -14,6 +14,12 @@ form {
     width: 48%; 
     margin-bottom: 15px;
 }
+.getbtndiv{
+    margin-top: 2rem;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
 label {
     display: block;
     margin-bottom: 5px;
@@ -31,6 +37,11 @@ input, textarea {
 }
 .error {
     border-color: red;
+}
+.resdiv{
+    display: flex;
+    align-items: center;
+    justify-content: center;
 }
 @media (max-width: 600px) {
     .formele {
