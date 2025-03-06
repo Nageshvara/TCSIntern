@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Update Book</title>
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+        import { getDatabase, ref, get, set } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-database.js";
+
+        const firebaseConfig = {
+            apiKey: "AIzaSyDeyw51J6y9IPTNntl-QY9T-lp3fXGr1eQ",
+            authDomain: "formval-59706.firebaseapp.com",
+            databaseURL: "https://formval-59706-default-rtdb.firebaseio.com",
+            projectId: "formval-59706",
+            storageBucket: "formval-59706.firebasestorage.app",
+            messagingSenderId: "750673335452",
+            appId: "1:750673335452:web:64a14da9e1afa5c5514959",
+            measurementId: "G-CYKC0EZE5M"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase();
+
+        const urlParams = new URLSearchParams(window.location.search);
+        const authorKey = urlParams.get('author');
+        const bookKey = urlParams.get('book');
+
+        const bookRef = ref(db, `Authors/${authorKey}/Books/${bookKey}`);
+
+        function loadBookData() {
+            get(bookRef).then((snapshot) => {
+                if (snapshot.exists()) {
+                    const bookData = snapshot.val();
+                    document.getElementById("author").value = authorKey;
+                    document.getElementById("bookName").value = bookData.BookName;
+                    document.getElementById("publisher").value = bookData.Publisher;
+                    document.getElementById("description").value = bookData.Description;
+                    document.getElementById("price").value = bookData.Price;
+                } else {
+                    alert("Book not found!");
+                    window.location.href = "index.html";
+                }
+            }).catch((error) => {
+                alert("Error fetching book details: " + error);
+            });
+        }
+
+        function updateBookData(event) {
+            event.preventDefault();
+            const updatedData = {
+                BookName: document.getElementById("bookName").value,
+                Publisher: document.getElementById("publisher").value,
+                Description: document.getElementById("description").value,
+                Price: document.getElementById("price").value
+            };
+            set(bookRef, updatedData).then(() => {
+                alert("Book details updated successfully!");
+                window.location.href = "index.html";
+            }).catch((error) => {
+                alert("Error updating book: " + error);
+            });
+        }
+
+        window.onload = loadBookData;
+        window.updateBookData = updateBookData;
+    </script>
+</head>
+<body class="container mt-4">
+    <h2 class="text-center">Update Book Details</h2>
+    <form id="updateForm" class="mt-4" onsubmit="updateBookData(event)">
+        <div class="mb-3">
+            <label for="author" class="form-label">Author Name</label>
+            <input type="text" id="author" class="form-control" readonly>
+        </div>
+        <div class="mb-3">
+            <label for="bookName" class="form-label">Book Name</label>
+            <input type="text" id="bookName" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label for="publisher" class="form-label">Publisher</label>
+            <input type="text" id="publisher" class="form-control" required>
+        </div>
+        <div class="mb-3">
+            <label for="description" class="form-label">Description</label>
+            <textarea id="description" class="form-control" required></textarea>
+        </div>
+        <div class="mb-3">
+            <label for="price" class="form-label">Price (Rs)</label>
+            <input type="number" id="price" class="form-control" required>
+        </div>
+        <button type="submit" class="btn btn-success">Update Book</button>
+        <a href="index.html" class="btn btn-secondary">Cancel</a>
+    </form>
+
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
+</body>
+</html>

@@ -63,7 +63,7 @@
                                         <td>${book.Price}</td>
                                         <td>
                                             <button class="btn btn-primary btn-sm" onclick="toggleDescription('${rowId}')">View</button>
-                                            <button class="btn btn-warning btn-sm">Update</button>
+                                            <button class="btn btn-warning btn-sm" onclick="redirectToUpdate('${authorKey}', '${bookKey}')">Update</button>
                                         </td>
                                     </tr>
                                     <tr id="${rowId}" class="description-row d-none">
@@ -87,6 +87,10 @@
         window.toggleDescription = function(rowId) {
             const descRow = document.getElementById(rowId);
             descRow.classList.toggle("d-none");
+        };
+
+        window.redirectToUpdate = function(authorKey, bookKey) {
+            window.location.href = `update.html?author=${encodeURIComponent(authorKey)}&book=${encodeURIComponent(bookKey)}`;
         };
 
         window.onload = getBooks;
