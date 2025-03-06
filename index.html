@@ -3,55 +3,120 @@
 <head>
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Form Validation</title>
-    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
-    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-</head>
-<body class="bg-light">
-    <div class="container mt-5">
-        <div class="card shadow p-4">
-            <h2 class="text-center text-dark">Book Details Form</h2>
-            <form id="bookForm" class="needs-validation" novalidate>
-                <div class="row">
-                    <div class="col-md-6 mb-3">
-                        <label for="BookName" class="form-label">Book Name</label>
-                        <input type="text" class="form-control" id="BookName" minlength="5" required name="BookName">
-                        <div class="invalid-feedback">Book Name must be at least 5 characters.</div>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label for="Author" class="form-label">Author</label>
-                        <input type="text" class="form-control" id="Author" minlength="5" required name="Author">
-                        <div class="invalid-feedback">Author Name must be at least 5 characters.</div>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label for="AuthorEmail" class="form-label">Author Email</label>
-                        <input type="email" class="form-control" id="AuthorEmail" required name="AuthorEmail">
-                        <div class="invalid-feedback">Enter a valid email address.</div>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label for="Publisher" class="form-label">Publisher</label>
-                        <input type="text" class="form-control" id="Publisher" minlength="5" required name="Publisher">
-                        <div class="invalid-feedback">Publisher Name must be at least 5 characters.</div>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label for="Description" class="form-label">Description</label>
-                        <textarea class="form-control" id="Description" minlength="20" rows="3" required name="Description"></textarea>
-                        <div class="invalid-feedback">Description must be at least 20 characters.</div>
-                    </div>
-                    <div class="col-md-6 mb-3">
-                        <label for="Price" class="form-label">Price (Rs)</label>
-                        <input type="number" class="form-control" id="Price" required name="Price">
-                        <div class="invalid-feedback">Enter a valid price.</div>
-                    </div>
-                </div>
-                <button type="submit" class="btn btn-dark w-100">Submit</button>
-            </form>
-        </div>
+    <title>List of Books</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/css/bootstrap.min.css" rel="stylesheet">
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-app.js";
+        import { getDatabase, ref, get } from "https://www.gstatic.com/firebasejs/11.4.0/firebase-database.js";
 
-        <div class="text-center mt-4">
-            <a href="booklist.html" class="btn btn-dark">Go to List Page</a>
+        const firebaseConfig = {
+            apiKey: "AIzaSyDeyw51J6y9IPTNntl-QY9T-lp3fXGr1eQ",
+            authDomain: "formval-59706.firebaseapp.com",
+            databaseURL: "https://formval-59706-default-rtdb.firebaseio.com",
+            projectId: "formval-59706",
+            storageBucket: "formval-59706.firebasestorage.app",
+            messagingSenderId: "750673335452",
+            appId: "1:750673335452:web:64a14da9e1afa5c5514959",
+            measurementId: "G-CYKC0EZE5M"
+        };
+
+        const app = initializeApp(firebaseConfig);
+        const db = getDatabase();
+
+        function getBooks() {
+            const loader = document.getElementById("loader");
+            const dataDiv = document.getElementById("bookslist");
+            
+            loader.style.display = "flex";
+            dataDiv.style.display = "none"; 
+
+            const authorsRef = ref(db, "Authors/");
+            get(authorsRef).then((snapshot) => {
+                if (snapshot.exists()) {
+                    const authorsData = snapshot.val();
+                    let booksHTML = `
+                        <table class="table table-bordered table-striped">
+                            <thead class="table-dark">
+                                <tr>
+                                    <th>Book Name</th>
+                                    <th>Author</th>
+                                    <th>Email</th>
+                                    <th>Price (Rs)</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                    `;
+
+                    Object.keys(authorsData).forEach(authorKey => {
+                        const authorDetails = authorsData[authorKey].AuthorDetails || {}; 
+                        const books = authorsData[authorKey].Books; 
+
+                        if (books) {
+                            Object.keys(books).forEach(bookKey => {
+                                const book = books[bookKey]; 
+                                const rowId = `desc_${bookKey}`; 
+
+                                booksHTML += `
+                                    <tr>
+                                        <td>${book.BookName}</td>
+                                        <td>${authorDetails.Author || "Unknown"}</td>
+                                        <td>${authorDetails.AuthorEmail || "Unknown"}</td>
+                                        <td>${book.Price}</td>
+                                        <td>
+                                            <button class="btn btn-primary btn-sm" onclick="toggleDescription('${rowId}')">View</button>
+                                            <button class="btn btn-warning btn-sm" onclick="redirectToUpdate('${authorKey}', '${bookKey}')">Update</button>
+                                        </td>
+                                    </tr>
+                                    <tr id="${rowId}" class="description-row d-none">
+                                        <td colspan="5" class="text-muted">${book.Description}</td>
+                                    </tr>
+                                `;
+                            });
+                        }
+                    });
+
+                    booksHTML += `</tbody></table>`;
+                    dataDiv.innerHTML = booksHTML;
+                } else {
+                    dataDiv.innerHTML = "<p class='text-danger'>No books found.</p>";
+                }
+
+                loader.style.display = "none";
+                dataDiv.style.display = "block";
+            }).catch((error) => {
+                dataDiv.innerHTML = `<p class='text-danger'>Error retrieving data: ${error}</p>`;
+                loader.style.display = "none";
+                dataDiv.style.display = "block";
+            });
+        }
+
+        window.toggleDescription = function(rowId) {
+            const descRow = document.getElementById(rowId);
+            descRow.classList.toggle("d-none");
+        };
+
+        window.redirectToUpdate = function(authorKey, bookKey) {
+            window.location.href = `update.html?author=${encodeURIComponent(authorKey)}&book=${encodeURIComponent(bookKey)}`;
+        };
+
+        window.onload = getBooks;
+    </script>
+</head>
+<body class="container mt-4">
+
+    <div id="loader">
+        <div class="spinner-border text-primary" style="width: 4rem; height: 4rem;" role="status">
+            <span class="visually-hidden">Loading...</span>
         </div>
     </div>
-    <script type="module" src="script.js"></script>
+
+    <h1 class="text-center">List of Books</h1>
+    <div id="bookslist" class="mt-4"></div>
+    <div id="addbkbtn">
+        <button class="btn btn-dark" onclick="window.location.href='addbook.html'">Add New Book</button>
+    </div>    
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.0/dist/js/bootstrap.bundle.min.js"></script>
 </body>
 </html>
