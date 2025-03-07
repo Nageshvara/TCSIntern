@@ -36,7 +36,7 @@
             get(authorsRef).then((snapshot) => {
                 if (snapshot.exists()) {
                     const authorsData = snapshot.val();
-                    allBooks = []; // Reset books array
+                    allBooks = [];
 
                     Object.keys(authorsData).forEach(authorKey => {
                         const authorDetails = authorsData[authorKey].AuthorDetails || {}; 
@@ -57,8 +57,7 @@
                             });
                         }
                     });
-
-                    displayBooks(allBooks); // Display all books initially
+                    displayBooks(allBooks);
                 } else {
                     dataDiv.innerHTML = "<p class='text-danger'>No books found.</p>";
                 }
